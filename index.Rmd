@@ -1,0 +1,13 @@
+---
+title: "index"
+output: html_document
+---
+
+# About Me: Information
+1. Name: Mrinmoy Bhaumik
+2. Location: Bridgewater, NJ
+3. Interests: Music, Film, Mathematics, Muay Thai, Data Science
+4. Work: Verisk Analytics
+5. Education: New York University
+
+The next tabs represent the work that I have completed in my DDS class, please take a look!
