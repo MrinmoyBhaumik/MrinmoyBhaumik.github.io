@@ -1,0 +1,8 @@
+name: "Mrinmoy's Website"
+navbar:
+  title: "My Website"
+  left:
+    - text: "About Me"
+      href: index.html
+    - text: "Beer Study"
+      href: Beer_Study.html
