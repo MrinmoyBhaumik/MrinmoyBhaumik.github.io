@@ -1,0 +1,186 @@
+---
+title: "Case_Study"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r echo=FALSE}
+library(shiny)
+library(ggplot2)
+library(dplyr)
+```
+
+```{r echo=FALSE}
+
+```
+
+
+```{r echo=FALSE}
+ui <- fluidPage(
+  titlePanel("Beer Study"),
+  
+  sidebarLayout(
+    
+    sidebarPanel(
+      
+      #fileInput("file1", "Choose Beers CSV File",
+       #         multiple = TRUE,
+        #        accept = c("text/csv",
+                           #"text/comma-separated-values,text/plain",
+#                           ".csv")),
+      
+      selectInput("select", label = h3("Beer Characteristics"), 
+                    choices = list("IBU" = "IBU", "ABV" = "ABV"), 
+                    selected = 1),
+      
+      selectInput("states", label = h3("Choose a state:"), 
+                    choices = list("AK" = "AK", 
+                                   "AL" = "AL",
+                                   "AR" = "AR",
+                                   "AZ" = "AZ",
+                                   "CA" = "CA",
+                                   "CO" = "CO",
+                                   "CT" = "CT",
+                                   "DE" = "DE",
+                                   "FL" = "FL",
+                                   "GA" = "GA",
+                                   "HI" = "HI",
+                                   "ID" = "ID",
+                                   "IL" = "IL",
+                                   "IN" = "IN",
+                                   "IA" = "IA",
+                                   "KS" = "KS",
+                                   "KY" = "KY",
+                                   "LA" = "LA",
+                                   "ME" = "ME",
+                                   "MD" = "MD",
+                                   "MA" = "MA",
+                                   "MI" = "MI",
+                                   "MN" = "MN",
+                                   "MS" = "MS",
+                                   "MO" = "MO",
+                                   "MT" = "MT",
+                                   "NE" = "NE",
+                                   "NV" = "NV",
+                                   "NH" = "NH",
+                                   "NJ" = "NJ",
+                                   "NM" = "NM",
+                                   "NY" = "NY",
+                                   "NC" = "NC",
+                                   "ND" = "ND",
+                                   "OH" = "OH",
+                                   "OK" = "OK",
+                                   "OR" = "OR",
+                                   "PA" = "PA",
+                                   "RI" = "RI",
+                                   "SC" = "SC",
+                                   "SD" = "SD",
+                                   "TN" = "TN",
+                                   "TX" = "TX",
+                                   "UT" = "UT",
+                                   "VT" = "VT",
+                                   "VA" = "VA",
+                                   "WA" = "WA",
+                                   "WV" = "WV",
+                                   "WI" = "WI",
+                                   "WY" = "WY"), 
+                    selected = 1),
+      
+                    hr(),
+                    fluidRow(column(3, verbatimTextOutput("value"))),
+      
+      radioButtons("box","Histogram Or Boxplot",
+                   c("Histogram" = "hist",
+                     "Boxplot" = "box")),
+      
+      radioButtons("line","Add Regression Line?",
+                   c("Yes" = "Yes",
+                     "No" = "No"))
+    ),
+    mainPanel(
+      
+      
+      plotOutput(outputId = "distPlot"),
+      
+      plotOutput(outputId = "distPlot2")
+      
+    )
+    
+  )
+  
+)
+
+server <- function(input,output){
+  output$contents <- renderTable({
+  
+  #req(input$file1)
+    
+  #beer_breweries <- read.csv(input$file1$datapath,
+   #                header = TRUE)
+})
+  
+  output$distPlot <- renderPlot({
+    
+    read.csv ("beer_breweries")
+    
+    beer_breweries %>% filter(State = input$states)
+                              
+    if (input$select == "IBU" & input$box == "hist")
+    {
+      beer_breweries %>% ggplot(aes(x=IBU)) +geom_histogram
+    }
+    
+    else if (input$select == "IBU" & input$box == "box")
+    {
+      beer_breweries %>% ggplot(aes(y=IBU)) + geom_boxplot()
+    }
+    
+    else if (input$select == "ABV" & input$box == "hist")
+    {
+      beer_breweries %>% ggplot(aes(x=ABV)) +geom_histogram
+    }
+    
+    else if (input$select == "ABV" & input$box == "box")
+    {
+      beer_breweries %>% ggplot(aes(y=ABV)) + geom_boxplot()
+    }
+  })
+  
+  output$distPlot2 <- renderPlot ({
+   
+     read.csv ("beer_breweries")
+    if (input$line == "Yes") 
+    {
+      beer_breweries %>% filter(State = input$states)
+      beer_breweries %>% ggplot(aes(x=ABV,y=IBU)) +
+      geom_point() + geom_smooth(method=lm) +
+      xlab("Alcohol By Volume (ABV)") +
+      ylab("International Bitterness Unit (IBU)") + 
+      ggtitle( "Relationship Between ABV and IBU")
+    }
+    else
+    {
+      beer_breweries %>% filter(State = input$states)
+      beer_breweries %>% ggplot(aes(x=ABV,y=IBU)) +
+      geom_point() +
+      xlab("Alcohol By Volume (ABV)") +
+      ylab("International Bitterness Unit (IBU)") + 
+      ggtitle( "Relationship Between ABV and IBU")
+    }
+    
+    
+    
+  })
+  
+}
+
+shinyApp(ui, server)
+
+```
+
