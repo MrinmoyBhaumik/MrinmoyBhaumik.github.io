@@ -17,11 +17,6 @@ library(dplyr)
 ```
 
 ```{r echo=FALSE}
-
-```
-
-
-```{r echo=FALSE}
 ui <- fluidPage(
   titlePanel("Beer Study"),
   
@@ -40,7 +35,8 @@ ui <- fluidPage(
                     selected = 1),
       
       selectInput("states", label = h3("Choose a state:"), 
-                    choices = list("AK" = "AK", 
+                    choices = list("All"= "All",
+                                   "AK" = "AK", 
                                    "AL" = "AL",
                                    "AR" = "AR",
                                    "AZ" = "AZ",
@@ -100,83 +96,150 @@ ui <- fluidPage(
                      "Boxplot" = "box")),
       
       radioButtons("line","Add Regression Line?",
-                   c("Yes" = "Yes",
-                     "No" = "No"))
+                   c("No" = "No",
+                     "Yes" = "Yes"))
     ),
     mainPanel(
       
       
       plotOutput(outputId = "distPlot"),
       
-      plotOutput(outputId = "distPlot2")
+      plotOutput(outputId = "distPlot2"),
+      
+      plotOutput(outputId = "distPlot3")
       
     )
     
   )
   
 )
+```
+
+
+```{r echo=FALSE}
+
 
 server <- function(input,output){
-  output$contents <- renderTable({
-  
-  #req(input$file1)
-    
-  #beer_breweries <- read.csv(input$file1$datapath,
-   #                header = TRUE)
-})
   
   output$distPlot <- renderPlot({
     
-    read.csv ("beer_breweries")
-    
-    beer_breweries %>% filter(State = input$states)
-                              
-    if (input$select == "IBU" & input$box == "hist")
+   beer_breweries<-read.csv ("beer_breweries.csv", stringsAsFactors = FALSE)
+    beer_breweries$State <- sapply(beer_breweries$State, function(x) gsub(" ","",x))
+    if (input$states == "All")
     {
-      beer_breweries %>% ggplot(aes(x=IBU)) +geom_histogram
+      if (input$select == "IBU" & input$box == "hist")
+      {
+        beer_breweries %>% ggplot(aes(x=IBU)) +geom_histogram()
+      }
+    
+      else if (input$select == "IBU" & input$box == "box")
+      {
+        beer_breweries %>% ggplot(aes(y=IBU)) + geom_boxplot()
+      }
+    
+      else if (input$select == "ABV" & input$box == "hist")
+      {
+        beer_breweries %>% ggplot(aes(x=ABV)) +geom_histogram()
+      }
+    
+      else if (input$select == "ABV" & input$box == "box")
+      {
+        beer_breweries %>% ggplot(aes(y=ABV)) + geom_boxplot()
+      }
+ 
+    }
+    else
+    {
+      if (input$select == "IBU" & input$box == "hist")
+      {
+        beer_breweries %>% filter(State == input$states) %>% ggplot(aes(x=IBU)) +geom_histogram()
+      }
+    
+      else if (input$select == "IBU" & input$box == "box")
+      {
+        beer_breweries %>% filter(State == input$states) %>% ggplot(aes(y=IBU)) + geom_boxplot()
+      }
+    
+      else if (input$select == "ABV" & input$box == "hist")
+      {
+        beer_breweries %>% filter(State == input$states) %>% ggplot(aes(x=ABV)) +geom_histogram()
+      }
+    
+      else if (input$select == "ABV" & input$box == "box")
+      {
+        beer_breweries %>% filter(State == input$states) %>% ggplot(aes(y=ABV)) + geom_boxplot()
+      }
+ 
     }
     
-    else if (input$select == "IBU" & input$box == "box")
-    {
-      beer_breweries %>% ggplot(aes(y=IBU)) + geom_boxplot()
-    }
-    
-    else if (input$select == "ABV" & input$box == "hist")
-    {
-      beer_breweries %>% ggplot(aes(x=ABV)) +geom_histogram
-    }
-    
-    else if (input$select == "ABV" & input$box == "box")
-    {
-      beer_breweries %>% ggplot(aes(y=ABV)) + geom_boxplot()
-    }
   })
   
   output$distPlot2 <- renderPlot ({
    
-     read.csv ("beer_breweries")
-    if (input$line == "Yes") 
-    {
-      beer_breweries %>% filter(State = input$states)
-      beer_breweries %>% ggplot(aes(x=ABV,y=IBU)) +
+     beer_breweries<-read.csv ("beer_breweries.csv", stringsAsFactors = FALSE)
+    beer_breweries$State <- sapply(beer_breweries$State, function(x) gsub(" ","",x))
+     if (input$states == "All")
+     {
+       if (input$line == "Yes") 
+      {
+        beer_breweries %>% ggplot(aes(x=ABV,y=IBU)) +
       geom_point() + geom_smooth(method=lm) +
       xlab("Alcohol By Volume (ABV)") +
       ylab("International Bitterness Unit (IBU)") + 
       ggtitle( "Relationship Between ABV and IBU")
-    }
-    else
-    {
-      beer_breweries %>% filter(State = input$states)
-      beer_breweries %>% ggplot(aes(x=ABV,y=IBU)) +
+      }
+        else
+        {
+          beer_breweries %>% ggplot(aes(x=ABV,y=IBU)) +
       geom_point() +
       xlab("Alcohol By Volume (ABV)") +
       ylab("International Bitterness Unit (IBU)") + 
       ggtitle( "Relationship Between ABV and IBU")
-    }
+        }
+     }
+     else
+     {
+        if (input$line == "Yes") 
+      {
+        beer_breweries %>% filter(State == input$states) %>%   ggplot(aes(x=ABV,y=IBU)) +
+      geom_point() + geom_smooth(method=lm) +
+      xlab("Alcohol By Volume (ABV)") +
+      ylab("International Bitterness Unit (IBU)") + 
+      ggtitle( "Relationship Between ABV and IBU")
+      }
+        else
+        {
+          beer_breweries %>% filter(State == input$states) %>% ggplot(aes(x=ABV,y=IBU)) +
+      geom_point() +
+      xlab("Alcohol By Volume (ABV)") +
+      ylab("International Bitterness Unit (IBU)") + 
+      ggtitle( "Relationship Between ABV and IBU")
+        }
+     }
+    
     
     
     
   })
+  
+  output$distPlot3 <- renderPlot ({
+    
+    beer_breweries<-read.csv ("beer_breweries.csv", stringsAsFactors = FALSE)
+    beer_breweries$State <- sapply(beer_breweries$State, function(x) gsub(" ","",x))
+    
+   state_breweries <- beer_breweries %>%
+  group_by(State) %>%
+  tally() %>%
+  arrange(desc(n)) 
+   state_breweries %>%
+  ggplot(aes(x=reorder(State, -n), y=n)) +
+  geom_bar(stat = "identity") +
+  ggtitle("Number of Breweries by State") +
+  xlab("State") +
+  ylab("Number of Breweries") 
+    
+  })
+  
   
 }
 
